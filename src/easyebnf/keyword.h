@@ -1,9 +1,9 @@
 #pragma once
-#include "definition.h"
+#include "def.h"
 
 namespace easyebnf
 {
-    class ALIGNED Symbols
+    class ALIGNED KeyWord
     {
     public:
         void setAlternation(char c) {alternation_ = c;}
