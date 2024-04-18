@@ -7,6 +7,14 @@ namespace easyebnf
 
     void Definition::addElement(const ElementPtr& element)
     {
-        elements_.push_back(element);
+        if (!element_)
+        {
+            element_ = element;
+        }
+    }
+
+    std::string Definition::name() const
+    {
+        return name_;
     }
 }

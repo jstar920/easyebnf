@@ -6,16 +6,20 @@ namespace easyebnf
 {
     enum class NotationType
     {
+        Ternary,
         Binary,
         Unary
     };
 
     struct Notation
     {
-        Notation(char first, char second = '\0')
-        : tag_(second == '\0' ? static_cast<uint8_t>(NotationType::Unary) : static_cast<uint8_t>(NotationType::Binary))
+        Notation(char first, char second = '\0', char thrid = '\0')
+        : tag_(second == '\0' ? static_cast<uint8_t>(NotationType::Unary)
+                              : thrid == '\0' ? static_cast<uint8_t>(NotationType::Binary)
+                                              : static_cast<uint8_t>(NotationType::Ternary))
         , first_(static_cast<uint8_t>(first))
         , second_(static_cast<uint8_t>(second))
+        , third_(static_cast<uint8_t>(thrid))
         {}
 
         Notation(const Notation& other)
@@ -34,6 +38,11 @@ namespace easyebnf
             return tag_ == static_cast<uint8_t>(NotationType::Unary);
         }
 
+        inline bool isTernary() const
+        {
+            return tag_ == static_cast<uint8_t>(NotationType::Ternary);
+        }
+
         template<typename CH>
         inline bool matchUnary(CH ch) const
         {
@@ -41,9 +50,15 @@ namespace easyebnf
         }
 
         template<typename CH>
-        inline bool matchBinary(CH ch1, CH ch2)const
+        inline bool matchBinary(CH ch1, CH ch2) const
         {
             return isBinary() && matchFirst(ch1) && matchSecond(ch2);
+        }
+
+        template<typename CH>
+        inline bool matchTernary(CH ch1, CH ch2, CH ch3) const
+        {
+            return isBinary() && matchFirst(ch1) && matchSecond(ch2) && matchThird(ch3);
         }
 
         bool operator == (const Notation& other) const
@@ -70,12 +85,18 @@ namespace easyebnf
             static_cast<uint8_t>(ch) == second_;
         }
 
+        template<typename CH>
+        inline bool matchThird(CH ch) const
+        {
+            static_cast<uint8_t>(ch) == third_;
+        }
+
 
     private:
         uint8_t tag_ {0};
         uint8_t first_ {0};
         uint8_t second_ {0};
-        uint8_t padding_ {0};
+        uint8_t third_ {0};
     };
 
     struct NotationPair

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IElement.h"
-#include <string>
 
 namespace easyebnf
 {
@@ -11,6 +10,6 @@ namespace easyebnf
         Repetition();
         virtual void addElement(const ElementPtr& element) override;
     private:
-        std::vector<std::shared_ptr<IElement>> elements_;
+        ElementPtr element_;
     };
 }

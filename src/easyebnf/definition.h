@@ -9,8 +9,9 @@ namespace easyebnf
     public:
         Definition(const std::string& name);
         virtual void addElement(const ElementPtr& element) override;
+        std::string name() const;
     private:
         std::string name_;
-        std::vector<std::shared_ptr<IElement>> elements_;
+        std::shared_ptr<IElement> element_;
     };
 }

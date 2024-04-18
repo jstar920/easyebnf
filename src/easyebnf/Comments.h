@@ -1,15 +1,16 @@
 #pragma once
+#pragma once
 #include "IElement.h"
 #include <string>
 
 namespace easyebnf
 {
-    class TerminalString : public IElement
+    class Comments : public IElement
     {
     public:
-        TerminalString(const std::string& terminalString);
+        Comments(const std::string& comments);
         virtual void addElement(const ElementPtr& element) final {};
     private:
-        std::string terminalString_;
+        std::string comments_;
     };
 }
