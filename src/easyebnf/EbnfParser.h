@@ -24,7 +24,11 @@ namespace easyebnf
     private:
         virtual ParserResult parse();
     private:
-        void parseIdString(std::string& str);
-        void parseTerminalString(std::string& str, const MarchFunc& march);
+        void parseDefinitionString();
+        void parseDefinition();
+        void parseTerminalString(const MarchFunc& march);
+        void parseConcatenation();
+        void parseTermination();
+        void parseAlternation();
     };
 }
