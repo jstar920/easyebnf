@@ -5,6 +5,11 @@
 #include "TerminalString.h"
 #include "Concatenation.h"
 #include "Alternation.h"
+#include "Optional.h"
+#include "Repetition.h"
+#include "Grouping.h"
+#include "Comments.h"
+#include "Exception.h"
 #include <string>
 
 namespace easyebnf
@@ -15,10 +20,34 @@ namespace easyebnf
 
     ParserResult EbnfParser::parse()
     {
+        parse(nullptr);
+        return ParserResult::Success;
+    }
+
+    void EbnfParser::parse(const MatchFunc& match)
+    {
         for (; !end(); next())
         {
             MatchType matchType { MatchType::MatchNone };
+            if (match)
+            {
+                matchType = match(cur());
+                if (matchType != MatchType::MatchNone)
+                {
+                    next(matchType);
+                    return;
+                }
+            }
+
+            parseElement();
+        }
+    }
+
+    void EbnfParser::parseElement()
+    {
             while (keywords_->isSpace(cur())) next();
+
+            MatchType matchType { MatchType::MatchNone };
 
             if (keywords_->isAlpha(cur()))
             {
@@ -28,13 +57,13 @@ namespace easyebnf
             {
                 parseDefinition();
             }
-            else if ((matchType = keywords_->matchTerminateStrLeft(cur())) != MatchType::MatchNone)
+            else if ((matchType = keywords_->matchTerminalStr1Left(cur())) != MatchType::MatchNone)
             {
-                parseTerminalString([this](const char* p){return keywords_->matchTerminateStrRight(p);});
+                parseTerminalString1();
             }
-            else if ((matchType = keywords_->matchTerminateStr2Left(cur())) != MatchType::MatchNone)
+            else if ((matchType = keywords_->matchTerminalStr2Left(cur())) != MatchType::MatchNone)
             {
-                parseTerminalString([this](const char* p){return keywords_->matchTerminateStr2Right(p);});
+                parseTerminalString2();
             }
             else if ((matchType = keywords_->matchConcatenation(cur())) != MatchType::MatchNone)
             {
@@ -52,10 +81,24 @@ namespace easyebnf
             {
                 parseAlternation();
             }
+            else if ((matchType = keywords_->matchRepetitionLeft(cur())) != MatchType::MatchNone)
+            {
+                parseAlternation();
+            }
+            else if ((matchType = keywords_->matchGroupingLeft(cur())) != MatchType::MatchNone)
+            {
+                parseAlternation();
+            }
+            else if ((matchType = keywords_->matchCommentsLeft(cur())) != MatchType::MatchNone)
+            {
+                parseComments();
+            }
+            else if ((matchType = keywords_->matchException(cur())) != MatchType::MatchNone)
+            {
+                parseException();
+            }
 
             next(matchType);
-        }
-        return ParserResult::Success;
     }
 
     void EbnfParser::parseDefinitionString()
@@ -114,23 +157,14 @@ namespace easyebnf
         definitionsDb_->add(currentDefinition_);
     }
 
-    void EbnfParser::parseTerminalString(const MarchFunc& march)
+    void EbnfParser::parseTerminalString1()
     {
-        std::string terminateString;
-        auto matchType = march(cur());
-        while(matchType == MatchType::MatchNone)
-        {
-            auto mt = keywords_->matchEscape(cur());
-            if (mt != MatchType::MatchNone)
-            {
-                next(mt);
-            }
-            terminateString.push_back(curCh());
-            next();
-            matchType = march(cur());
-        }
-        next(matchType);
-        elementsStack_.push(std::make_shared<TerminalString>(terminateString));
+        parseNotationString(KeywordTag::TerminalStr1, [this](const char* p){return keywords_->matchTerminalStr1Right(p);}, true);
+    }
+
+    void EbnfParser::parseTerminalString2()
+    {
+        parseNotationString(KeywordTag::TerminalStr2, [this](const char* p){return keywords_->matchTerminalStr2Right(p);}, true);
     }
 
     void EbnfParser::parseConcatenation()
@@ -174,5 +208,91 @@ namespace easyebnf
         alternation->addElement(elementsStack_.top());
         elementsStack_.pop();
         elementsStack_.push(alternation);
+    }
+
+    void EbnfParser::parseComments()
+    {
+        parseNotationString(KeywordTag::Comments, [this](const char* p){return keywords_->matchCommentsRight(p);}, false);
+    }
+
+    void EbnfParser::parseOptional()
+    {
+        parseBinaryNotationRecursive(std::make_shared<Optional>(), [this](const char* p){return keywords_->matchOptionalRight(p);});
+    }
+
+    void EbnfParser::parseRepetition()
+    {
+        parseBinaryNotationRecursive(std::make_shared<Repetition>(), [this](const char* p){return keywords_->matchRepetitionRight(p);});
+    }
+
+    void EbnfParser::parseGrouping()
+    {
+        parseBinaryNotationRecursive(std::make_shared<Grouping>(), [this](const char* p){return keywords_->matchGroupingRight(p);});
+    }
+
+    void EbnfParser::parseException()
+    {
+        auto excpetion = std::make_shared<Exception>();
+        parseElement();
+        if (elementsStack_.empty())
+        {
+            // should be crash it.
+            //TBD;
+        }
+        excpetion->addElement(elementsStack_.top());
+        elementsStack_.pop();
+        elementsStack_.push(excpetion);
+    }
+
+    ElementPtr EbnfParser::generateNotationString(KeywordTag tag, const std::string& str) const
+    {
+        switch(tag)
+        {
+            case KeywordTag::Definition:
+                return std::make_shared<Definition>(str);
+            case KeywordTag::Comments:
+                return std::make_shared<Comments>(str);
+            case KeywordTag::TerminalStr1:
+            case KeywordTag::TerminalStr2:
+                return std::make_shared<TerminalString>(str);
+            default:
+                return nullptr;
+        }
+    }
+
+    void EbnfParser::parseNotationString(KeywordTag tag, const MatchFunc& march, bool escape)
+    {
+        std::string str;
+        auto matchType = march(cur());
+        while(matchType == MatchType::MatchNone)
+        {
+            if (escape)
+            {
+                auto mt = keywords_->matchEscape(cur());
+                if (mt != MatchType::MatchNone)
+                {
+                    next(mt);
+                }
+            }
+            str.push_back(curCh());
+            next();
+            matchType = march(cur());
+        }
+        next(matchType);
+        elementsStack_.push(generateNotationString(tag, str));
+    }
+
+    void EbnfParser::parseBinaryNotationRecursive(const ElementPtr& curElem, const MatchFunc& march)
+    {
+        elementsStack_.push(curElem);
+        parse(march);
+        auto tempElem = elementsStack_.top();
+        elementsStack_.pop();
+        if (elementsStack_.empty())
+        {
+            // should be crash it.
+            //TBD;
+        }
+        elementsStack_.top()->addElement(tempElem);
     }
 }

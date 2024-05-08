@@ -19,8 +19,8 @@ namespace easyebnf
         Termination,
         Alternation,
         Grouping,
-        TerminateStr1,
-        TerminateStr2,
+        TerminalStr1,
+        TerminalStr2,
         Special,
         Optional,
         Repetition,
@@ -64,10 +64,10 @@ namespace easyebnf
                 case KeywordTag::Grouping:
                     grouping_ = notationPair;
                     break;
-                case KeywordTag::TerminateStr1:
+                case KeywordTag::TerminalStr1:
                     terminal_string1_ = notationPair;
                     break;
-                case KeywordTag::TerminateStr2:
+                case KeywordTag::TerminalStr2:
                     terminal_string2_ = notationPair;
                     break;
                 case KeywordTag::Special:
@@ -93,10 +93,10 @@ namespace easyebnf
         MatchType matchAlternation(const char* p) const { return march(alternation_, p); }
         MatchType matchGroupingLeft(const char* p) const { return march(grouping_.left, p); };
         MatchType matchGroupingRight(const char* p) const { return march(grouping_.left, p); };
-        MatchType matchTerminateStrLeft(const char* p) const {return march(terminal_string1_.left, p);}
-        MatchType matchTerminateStrRight(const char* p) const {return march(terminal_string1_.right, p);}
-        MatchType matchTerminateStr2Left(const char* p) const {return march(terminal_string2_.left, p);}
-        MatchType matchTerminateStr2Right(const char* p) const {return march(terminal_string2_.right, p);}
+        MatchType matchTerminalStr1Left(const char* p) const {return march(terminal_string1_.left, p);}
+        MatchType matchTerminalStr1Right(const char* p) const {return march(terminal_string1_.right, p);}
+        MatchType matchTerminalStr2Left(const char* p) const {return march(terminal_string2_.left, p);}
+        MatchType matchTerminalStr2Right(const char* p) const {return march(terminal_string2_.right, p);}
         MatchType matchSpecialLeft(const char* p) const { return march(special_sequence_.left, p); }
         MatchType matchSpecialRight(const char* p) const {return march(special_sequence_.right, p); }
         MatchType matchOptionalLeft(const char* p) const { return march(optional_.left, p); }

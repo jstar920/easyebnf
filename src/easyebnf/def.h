@@ -28,6 +28,11 @@ namespace easyebnf
         , second_(other.second_)
         {}
 
+        inline bool isNull() const
+        {
+            return operator== (Notation('\0'));
+        }
+
         inline bool isBinary() const
         {
             return tag_ == static_cast<uint8_t>(NotationType::Binary);
