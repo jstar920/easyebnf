@@ -134,7 +134,7 @@ namespace easyebnf
     private:
         Notation definition_ {'='};
         Notation concatenation_ {','};
-        Notation termination_ {DefaultTermination};
+        Notation termination_ {';'};
         Notation alternation_ {'|'};
         NotationPair grouping_ {'(', ')'};
         NotationPair terminal_string1_ {'\"', '\"'};

@@ -8,7 +8,8 @@ namespace easyebnf
     {
     public:
         TerminalString(const std::string& terminalString);
-        virtual void addElement(const ElementPtr& element) final {};
+        virtual void addElement(const ElementPtr& element) final {}
+        virtual void handleElemet() final {}
     private:
         std::string terminalString_;
     };

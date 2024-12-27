@@ -13,7 +13,7 @@ namespace easyebnf
         virtual ~IElement() {}
 
         virtual void addElement(const ElementPtr& element) = 0;
-        virtual void handleElemet() = 0;
+        virtual void handleElemet() {}
 
         void setHandler(const ElementHandlerPtr& handler) { handler_ = handler; };
     private:

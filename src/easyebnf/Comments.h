@@ -9,7 +9,7 @@ namespace easyebnf
     {
     public:
         Comments(const std::string& comments);
-        virtual void addElement(const ElementPtr& element) final {};
+        virtual void addElement(const ElementPtr& element) final {}
     private:
         std::string comments_;
     };

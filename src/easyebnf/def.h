@@ -51,7 +51,7 @@ namespace easyebnf
         template<typename CH>
         inline bool matchUnary(CH ch) const
         {
-            isUnary() && static_cast<uint8_t>(ch) == first_;
+            return isUnary() && static_cast<uint8_t>(ch) == first_;
         }
 
         template<typename CH>
@@ -81,19 +81,19 @@ namespace easyebnf
         template<typename CH>
         inline bool matchFirst(CH ch) const
         {
-            static_cast<uint8_t>(ch) == first_;
+            return static_cast<uint8_t>(ch) == first_;
         }
 
         template<typename CH>
         inline bool matchSecond(CH ch) const
         {
-            static_cast<uint8_t>(ch) == second_;
+            return static_cast<uint8_t>(ch) == second_;
         }
 
         template<typename CH>
         inline bool matchThird(CH ch) const
         {
-            static_cast<uint8_t>(ch) == third_;
+            return static_cast<uint8_t>(ch) == third_;
         }
 
 

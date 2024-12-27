@@ -14,11 +14,6 @@ namespace easyebnf
     enum class KeywordTag;
     using MatchFunc = std::function<MatchType(const char*)>;
 
-    enum class ParserResult
-    {
-        Success
-    };
-
     class EbnfParser : public Parser
     {
     public:

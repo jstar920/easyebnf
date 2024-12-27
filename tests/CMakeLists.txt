@@ -11,7 +11,7 @@ include_directories (.)
 
 #add_library(tests SHARED ${TESTS_HEADERS} ${TESTS_SOURCES})
 add_executable(easyebnf_tests ${TESTS_HEADERS} ${TESTS_SOURCES})
-target_link_libraries(easyebnf_tests PRIVATE easyebnf_static)
+target_link_libraries(easyebnf_tests PRIVATE easyebnf_static assure_static)
 target_include_directories(easyebnf_tests PRIVATE ${CMAKE_SRC_ROOT_DIRECTORY}/easyebnf) 
 
 set_property(TARGET easyebnf_tests PROPERTY FOLDER ${PRJECT_LIBRARIES_DIR}/test)
